@@ -2,10 +2,8 @@ import java.util.ArrayList;
 
 public class Product {
 
-    static ArrayList<Product> productArrayList = new ArrayList<>();
-
     private String date,size,carrier;
-    private int price;
+    private double price, discount;
 
     public Product(String date,String size,String carrier){
         this.date = date;
@@ -36,4 +34,30 @@ public class Product {
         this.carrier = carrier;
     }
 
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public double getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(double discount) {
+        this.discount = discount;
+    }
+
+    @Override
+    public String toString() {
+        return "Product{" +
+                "date='" + date + '\'' +
+                ", size='" + size + '\'' +
+                ", carrier='" + carrier + '\'' +
+                ", price=" + price +
+                ", discount=" + discount +
+                '}';
+    }
 }
