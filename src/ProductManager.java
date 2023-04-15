@@ -61,12 +61,16 @@ public class ProductManager {
     }
 
     private boolean max10(Product p){
+        LocalDate localdateasstring = LocalDate.parse(p.getDate());
         for (int i =0;i < productArrayList.size() ;i++){
             accumulatedDiscount += p.getDiscount();
+            localdateasstring.plusMonths(i);
         }
-        if (accumulatedDiscount <= 10){
+        LocalDate month = dateTracker.get(p);
+        if (localdateasstring != month && (accumulatedDiscount <= 10)){
             accumulatedDiscount = 0;
             return true;
+
         }
         return false;
     }
@@ -85,9 +89,9 @@ public class ProductManager {
                 accumulatedDiscount+=p.getDiscount();
             }
             if (max10(p)){
-                p.setDiscount(p.getPrice()-1);
-                p.setPrice(p.getPrice()-p.getDiscount()-1);
-                accumulatedDiscount+=p.getDiscount();
+                p.setDiscount(p.getPrice()-accumulatedDiscount);
+                p.setPrice(p.getPrice()-p.getDiscount()-accumulatedDiscount);
+                accumulatedDiscount+= p.getDiscount();
             }
         }
     }

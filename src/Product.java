@@ -52,12 +52,6 @@ public class Product {
 
     @Override
     public String toString() {
-        return "Product{" +
-                "date='" + date + '\'' +
-                ", size='" + size + '\'' +
-                ", carrier='" + carrier + '\'' +
-                ", price=" + price +
-                ", discount=" + discount +
-                '}';
+        return date + " "+ size+ " " + carrier + " " + price + " " + discount;
     }
 }
