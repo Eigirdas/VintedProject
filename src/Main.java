@@ -1,7 +1,6 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class Main {
@@ -23,15 +22,12 @@ public class Main {
                     String carrier = vals[2];
                     Product p = new Product(date, size, carrier);
                     productArrayList.add(p);
-
                 }
+
             }
-
-
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
 
         ProductManager productManager = new ProductManager(productArrayList);
         productManager.summary();

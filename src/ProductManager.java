@@ -1,6 +1,7 @@
+import java.awt.geom.QuadCurve2D;
+import java.time.Instant;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 
 
 /*
@@ -13,15 +14,15 @@ If there are not enough funds to fully cover a discount this calendar month, it 
 
 public class ProductManager {
     private ArrayList<Product> productArrayList;
-    private double totaldisc =10;
-    int LLPcounter = 0;
-
     private HashMap<String, Double> prices = new HashMap<>();
-    private HashMap<LocalDate, Double> discounts = new HashMap<>();
+    private HashMap<Product,LocalDate> dateTracker = new HashMap<>();
+    private double accumulatedDiscount = 0;
+    private int LPLTracker = 0;
+    private LocalDate currentDate;
     public ProductManager(ArrayList<Product> productArrayList) {
         this.productArrayList = productArrayList;
-
         setPrices();
+        calculateDiscounts();
     }
     private void setPrices(){
         prices.put("LPS", 1.50);
@@ -34,37 +35,54 @@ public class ProductManager {
             String cur = p.getCarrier() + p.getSize();
             p.setPrice(prices.get(cur));
         }
+        for (Product p: productArrayList){
+            LocalDate date = LocalDate.parse(p.getDate());
+            dateTracker.put(p,date);
+        }
     }
 
-    private void productcost(Product p) {
-        System.out.println(totaldisc);
-        var dateasstr = p.getDate();
-        var coupondate = LocalDate.parse(dateasstr);
+    private boolean isSmallShipment(Product p){
+        if (p.getSize().equals("S")){
+            return true;
+        }
+        return false;
+    }
 
-        String size = p.getSize();
-        String carrier = p.getCarrier();
+    private boolean isFreeShipment(Product p, LocalDate currentDate){
+        String cur = p.getCarrier()+p.getSize();
+        LocalDate date = dateTracker.get(p);
+        if (cur.equals("LPL")){
+            LPLTracker++;
+        }if (LPLTracker==3){
+            LPLTracker=0;
+            return true;
+        }
+        return false;
+    }
 
+    private boolean max10(Product p){
 
-            if (size.equals("L") && carrier.equals("LP")){
-                LLPcounter++;
-            }if (LLPcounter==3) {
-                System.out.println("LLP COUNTER = "+LLPcounter);
-                p.setDiscount(totaldisc=totaldisc-6.9);
-                //totaldisc = totaldisc - 6.9;
-            }if (size.equals("S") && carrier.equals("MR")) {
-                p.setDiscount(totaldisc=totaldisc-0.5);
-                //totaldisc = totaldisc - 0.5;
+    }
+
+    private void calculateDiscounts(){
+        for (Product p: productArrayList){
+            this.currentDate = LocalDate.parse(p.getDate());
+            if (isSmallShipment(p)){
+                p.setDiscount(p.getPrice()-prices.get("LPS"));
+                p.setPrice(p.getPrice()-p.getDiscount());
+                accumulatedDiscount+=p.getDiscount();
             }
-
-
-
+            if (isFreeShipment(p, currentDate)){
+                p.setDiscount(p.getPrice());
+                p.setPrice(p.getPrice()-p.getDiscount());
+                accumulatedDiscount+=p.getDiscount();
+            }
+        }
     }
 
     public void summary(){
         for (Product p: productArrayList){
             System.out.println(p.toString());
-            productcost(p);
-
         }
     }
 
