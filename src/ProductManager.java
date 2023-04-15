@@ -13,6 +13,9 @@ If there are not enough funds to fully cover a discount this calendar month, it 
 
 public class ProductManager {
     private ArrayList<Product> productArrayList;
+    private double totaldisc =10;
+    int LLPcounter = 0;
+
     private HashMap<String, Double> prices = new HashMap<>();
     private HashMap<LocalDate, Double> discounts = new HashMap<>();
     public ProductManager(ArrayList<Product> productArrayList) {
@@ -33,51 +36,35 @@ public class ProductManager {
         }
     }
 
-
-
-        // check the ammount of data has the same year ->
-        // if it's the same year, continue to check if it's the same month
-        // if it's the same month apply a 5% discount, check the days
-        // if it's different month apply 10% discount
-
-//    private void calcdisc(Product p){
-//        var dateAsString = p.getDate();
-//        var couponDate = LocalDate.parse(dateAsString);
-//        var currentDate = LocalDate.now();
-//
-//        if (couponDate.getMonth() == currentDate.getMonth()) {
-//
-//        } else if (couponDate.getYear() == currentDate.getYear()) {
-//
-//        } else if (couponDate.getDayOfMonth() == currentDate.getDayOfMonth()) {
-//
-//        }
-//    }
-
-
-    private void isFreeShipment(Product p){
-        double lptotal = 0;
+    private void productcost(Product p) {
+        System.out.println(totaldisc);
+        var dateasstr = p.getDate();
+        var coupondate = LocalDate.parse(dateasstr);
 
         String size = p.getSize();
         String carrier = p.getCarrier();
-        LocalDate date = LocalDate.parse(p.getDate());
-        double discount = p.getDiscount();
-        double price = p.getPrice();
 
-//        if (size != "L" || carrier != "LP"){
-//            return false;
-//        } else if (size) {
-//
-//        }
-//
-//        return false;
-        for(int i = 0;i<)
+
+            if (size.equals("L") && carrier.equals("LP")){
+                LLPcounter++;
+            }if (LLPcounter==3) {
+                System.out.println("LLP COUNTER = "+LLPcounter);
+                p.setDiscount(totaldisc=totaldisc-6.9);
+                //totaldisc = totaldisc - 6.9;
+            }if (size.equals("S") && carrier.equals("MR")) {
+                p.setDiscount(totaldisc=totaldisc-0.5);
+                //totaldisc = totaldisc - 0.5;
+            }
+
+
 
     }
 
     public void summary(){
         for (Product p: productArrayList){
             System.out.println(p.toString());
+            productcost(p);
+
         }
     }
 
