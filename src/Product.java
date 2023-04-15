@@ -1,5 +1,3 @@
-import java.util.ArrayList;
-
 public class Product {
 
     private String date,size,carrier;

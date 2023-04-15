@@ -1,5 +1,3 @@
-import java.awt.geom.QuadCurve2D;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -15,9 +13,10 @@ If there are not enough funds to fully cover a discount this calendar month, it 
 public class ProductManager {
     private ArrayList<Product> productArrayList;
     private HashMap<String, Double> prices = new HashMap<>();
-    private HashMap<Product,LocalDate> dateTracker = new HashMap<>();
-    private double accumulatedDiscount = 0;
+
     private int LPLTracker = 0;
+    private HashMap<Integer,Double> discountTracker = new HashMap<>();
+    private HashMap<Integer,Boolean> lplTracker = new HashMap<>();
     private LocalDate currentDate;
     public ProductManager(ArrayList<Product> productArrayList) {
         this.productArrayList = productArrayList;
@@ -37,7 +36,11 @@ public class ProductManager {
         }
         for (Product p: productArrayList){
             LocalDate date = LocalDate.parse(p.getDate());
-            dateTracker.put(p,date);
+            discountTracker.put(date.getMonthValue(), 10.0);
+        }
+        for (Product p: productArrayList){
+            LocalDate date = LocalDate.parse(p.getDate());
+            lplTracker.put(date.getMonthValue(), true);
         }
     }
 
@@ -48,29 +51,33 @@ public class ProductManager {
         return false;
     }
 
-    private boolean isFreeShipment(Product p, LocalDate currentDate){
-        String cur = p.getCarrier()+p.getSize();
-        LocalDate date = dateTracker.get(p);
-        if (cur.equals("LPL")){
-            LPLTracker++;
-        }if (LPLTracker==3){
-            LPLTracker=0;
+    private boolean isAvailableFreeShipment(LocalDate currentDate){
+        boolean isAvailable = lplTracker.get(currentDate.getMonthValue());
+        if (isAvailable){
             return true;
         }
         return false;
     }
 
-    private boolean max10(Product p){
-        LocalDate localdateasstring = LocalDate.parse(p.getDate());
-        for (int i =0;i < productArrayList.size() ;i++){
-            accumulatedDiscount += p.getDiscount();
-            localdateasstring.plusMonths(i);
+    private boolean isFreeShipment(Product p, LocalDate currentDate){
+        String cur = p.getCarrier()+p.getSize();
+        if (isAvailableFreeShipment(currentDate)){
+            if (cur.equals("LPL")){
+                LPLTracker++;
+                return true;
+            }if (LPLTracker==3){
+                LPLTracker=0;
+                return true;
+            }
         }
-        LocalDate month = dateTracker.get(p);
-        if (localdateasstring != month && (accumulatedDiscount <= 10)){
-            accumulatedDiscount = 0;
-            return true;
+        return false;
+    }
 
+    private boolean canApplyDiscount(LocalDate currentDate, double discount){
+        int cur = currentDate.getMonthValue();
+        if ( (discountTracker.get(cur) - discount) > 0){
+            discountTracker.put(cur, discountTracker.get(cur) - discount);
+            return true;
         }
         return false;
     }
@@ -79,19 +86,16 @@ public class ProductManager {
         for (Product p: productArrayList){
             this.currentDate = LocalDate.parse(p.getDate());
             if (isSmallShipment(p)){
-                p.setDiscount(p.getPrice()-prices.get("LPS"));
-                p.setPrice(p.getPrice()-p.getDiscount());
-                accumulatedDiscount+=p.getDiscount();
+                if (canApplyDiscount(currentDate, prices.get("LPS"))){
+                    p.setDiscount(p.getPrice()-prices.get("LPS"));
+                    p.setPrice(p.getPrice()-p.getDiscount());
+                }
             }
             if (isFreeShipment(p, currentDate)){
-                p.setDiscount(p.getPrice());
-                p.setPrice(p.getPrice()-p.getDiscount());
-                accumulatedDiscount+=p.getDiscount();
-            }
-            if (max10(p)){
-                p.setDiscount(p.getPrice()-accumulatedDiscount);
-                p.setPrice(p.getPrice()-p.getDiscount()-accumulatedDiscount);
-                accumulatedDiscount+= p.getDiscount();
+                if (canApplyDiscount(currentDate, p.getPrice())){
+                    p.setDiscount(p.getPrice());
+                    p.setPrice(p.getPrice()-p.getDiscount());
+                }
             }
         }
     }
