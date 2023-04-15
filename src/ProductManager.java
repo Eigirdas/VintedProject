@@ -61,7 +61,14 @@ public class ProductManager {
     }
 
     private boolean max10(Product p){
-
+        for (int i =0;i < productArrayList.size() ;i++){
+            accumulatedDiscount += p.getDiscount();
+        }
+        if (accumulatedDiscount <= 10){
+            accumulatedDiscount = 0;
+            return true;
+        }
+        return false;
     }
 
     private void calculateDiscounts(){
@@ -75,6 +82,11 @@ public class ProductManager {
             if (isFreeShipment(p, currentDate)){
                 p.setDiscount(p.getPrice());
                 p.setPrice(p.getPrice()-p.getDiscount());
+                accumulatedDiscount+=p.getDiscount();
+            }
+            if (max10(p)){
+                p.setDiscount(p.getPrice()-1);
+                p.setPrice(p.getPrice()-p.getDiscount()-1);
                 accumulatedDiscount+=p.getDiscount();
             }
         }
